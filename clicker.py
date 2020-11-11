@@ -8,7 +8,6 @@ from Foundation import NSObject, NSLog
 from Cocoa import NSEvent, NSKeyDownMask
 from PyObjCTools import AppHelper
 import _thread
-import random
 
 flag = False
 
@@ -21,17 +20,22 @@ class AppDelegate(NSObject):
 # Where the magic begins
 def handler(event):
     global flag
+
     try:
-        #NSLog(u"%@", event)
-        #print 'keycode: ' + str(event.keyCode())
+        NSLog(u"%@", event)
+        print ('keycode: ' + str(event.keyCode()))
+
         if (int(event.keyCode()) == 6): # 6 - Z Key
             flag = not(flag)
             status = 'activated' if flag else 'deactivated'
             print('clicker ' + status)
+
             clicker()
         elif (int(event.keyCode()) == 53): # 53 - ESC Key 
+            print('AppHelper.stopEventLoop()')
             AppHelper.stopEventLoop()
     except KeyboardInterrupt:
+        print('KeyboardInterrupt -> AppHelper.stopEventLoop()')
         AppHelper.stopEventLoop()
     
 # Mouse Events
@@ -41,20 +45,25 @@ def mouseEvent(type, posx, posy):
     return result
     
 def mouseclick(posx,posy):  
-    up = mouseEvent(kCGEventLeftMouseDown, posx,posy)  
+    up = mouseEvent(kCGEventLeftMouseDown, posx,posy)
     down = mouseEvent(kCGEventLeftMouseUp, posx,posy)
+
+    print('Clicked at position x=' + str(posx) + ' y=' + str(posy))
+
     return str(up) + ' ' + str(down)
 
 # the clicker
 def clicker():
     global flag
-    print('clicker started')
-    while(True):
-        if(flag):
-            ourEvent = CGEventCreate(None)
-            currentpos = CGEventGetLocation(ourEvent) # Save current mouse position
-            mouseclick(int(currentpos.x),int(currentpos.y))
-            sleep(0.01 * random.randint(1,5))
+    print('Clicker started...')
+
+    while(flag):
+        ourEvent = CGEventCreate(None)
+        currentpos = CGEventGetLocation(ourEvent) # Save current mouse position
+        mouseclick(int(currentpos.x),int(currentpos.y))
+
+        print('Continuing after 5 seconds...')
+        sleep(5)
     
 #main function
 def main():
