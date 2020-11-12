@@ -22,8 +22,8 @@ def handler(event):
     global flag
 
     try:
-        NSLog(u"%@", event)
-        print ('keycode: ' + str(event.keyCode()))
+        # NSLog(u"%@", event)
+        # print ('keycode: ' + str(event.keyCode()))
 
         if (int(event.keyCode()) == 6): # 6 - Z Key
             flag = not(flag)
@@ -52,18 +52,49 @@ def mouseclick(posx,posy):
 
     return str(up) + ' ' + str(down)
 
+def sanitised_input(prompt, type_=None):
+    value = input(prompt)
+    if type_ is not None:
+        try:
+            value = type_(value)
+        except ValueError:
+            print("Input type must be {0}".format(type_.__name__))
+            sanitised_input(prompt, type_)
+
+            return
+
+    return value
+
 # the clicker
 def clicker():
     global flag
-    print('Clicker started...')
+    
+    limit = -1
+    sleep_interval = 0
+
+    if flag:
+        limit = sanitised_input("Maximum clicks: ", int)
+        sleep_interval = sanitised_input("Delay between click (seconds): ", int)
+    else:
+        print('Clicker started...')
+        print('Press Z to start auto click...')
+    clicked_total = 0
 
     while(flag):
+        if ((limit > 0) and (clicked_total >= limit)):
+            print("Reached maximum clicks...")
+            print("Press Z to auto click again OR ESC to stop...")
+
+            flag = False
+            break
+
         ourEvent = CGEventCreate(None)
         currentpos = CGEventGetLocation(ourEvent) # Save current mouse position
         mouseclick(int(currentpos.x),int(currentpos.y))
 
-        print('Continuing after 5 seconds...')
-        sleep(5)
+        print('Continuing after ' + str(sleep_interval) + ' seconds...')
+        clicked_total = clicked_total + 1
+        sleep(sleep_interval)
     
 #main function
 def main():
