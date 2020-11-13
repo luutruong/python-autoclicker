@@ -8,6 +8,7 @@ from Foundation import NSObject, NSLog
 from Cocoa import NSEvent, NSKeyDownMask
 from PyObjCTools import AppHelper
 import _thread
+import sys
 
 flag = False
 
@@ -48,7 +49,7 @@ def mouseclick(posx,posy):
     up = mouseEvent(kCGEventLeftMouseDown, posx,posy)
     down = mouseEvent(kCGEventLeftMouseUp, posx,posy)
 
-    print('Clicked at position x=' + str(posx) + ' y=' + str(posy))
+    print('\nClicked at position x=' + str(posx) + ' y=' + str(posy))
 
     return str(up) + ' ' + str(down)
 
@@ -79,22 +80,30 @@ def clicker():
         print('Clicker started...')
         print('Press Z to start auto click...')
     clicked_total = 0
+    time_eslapsed = 0
 
     while(flag):
         if ((limit > 0) and (clicked_total >= limit)):
-            print("Reached maximum clicks...")
-            print("Press Z to auto click again OR ESC to stop...")
+            print("\nReached maximum clicks...")
+            print("\nPress Z to auto click again OR ESC to stop...")
 
             flag = False
             break
 
-        ourEvent = CGEventCreate(None)
-        currentpos = CGEventGetLocation(ourEvent) # Save current mouse position
-        mouseclick(int(currentpos.x),int(currentpos.y))
+        if (time_eslapsed - sleep_interval) == 1:
+            ourEvent = CGEventCreate(None)
+            currentpos = CGEventGetLocation(ourEvent) # Save current mouse position
+            mouseclick(int(currentpos.x),int(currentpos.y))
 
-        print('Continuing after ' + str(sleep_interval) + ' seconds...')
-        clicked_total = clicked_total + 1
-        sleep(sleep_interval)
+            time_eslapsed = 0
+            clicked_total = clicked_total + 1
+
+        sys.stdout.write("\r")
+        sys.stdout.write("Continuing after {:2d} seconds...".format(sleep_interval - time_eslapsed))
+        sys.stdout.flush()
+        
+        time_eslapsed = time_eslapsed + 1
+        sleep(1)
     
 #main function
 def main():
