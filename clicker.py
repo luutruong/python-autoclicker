@@ -49,7 +49,7 @@ def mouseclick(posx,posy):
     up = mouseEvent(kCGEventLeftMouseDown, posx,posy)
     down = mouseEvent(kCGEventLeftMouseUp, posx,posy)
 
-    print('\nClicked at position x=' + str(posx) + ' y=' + str(posy))
+    # print('\nClicked at position x=' + str(posx) + ' y=' + str(posy))
 
     return str(up) + ' ' + str(down)
 
@@ -81,6 +81,7 @@ def clicker():
         print('Press Z to start auto click...')
     clicked_total = 0
     time_eslapsed = 0
+    currentpos = False
 
     while(flag):
         if ((limit > 0) and (clicked_total >= limit)):
@@ -99,7 +100,14 @@ def clicker():
             clicked_total = clicked_total + 1
 
         sys.stdout.write("\r")
-        sys.stdout.write("Continuing after {:2d} seconds...".format(sleep_interval - time_eslapsed))
+        message = "Clicked at position x={0} y={1}. Total clicks {2}/{3}. Continuing {4} seconds...".format(
+                int(currentpos.x) if currentpos else 0,
+                int(currentpos.y) if currentpos else 0,
+                clicked_total,
+                limit,
+                sleep_interval - time_eslapsed
+            )
+        sys.stdout.write(message)
         sys.stdout.flush()
         
         time_eslapsed = time_eslapsed + 1
